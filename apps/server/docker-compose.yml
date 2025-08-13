@@ -1,0 +1,55 @@
+name: finance_mern
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: finance-mern
+    command: >
+      bash -c "
+        cp /tmp/mongodb-keyfile /opt/keyfile/mongodb-keyfile &&
+        chmod 600 /opt/keyfile/mongodb-keyfile &&
+        chown mongodb:mongodb /opt/keyfile/mongodb-keyfile &&
+        exec mongod --replSet rs0 --bind_ip_all --keyFile /opt/keyfile/mongodb-keyfile
+      "
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: finance_mern
+    ports:
+      - "27017:27017"
+    volumes:
+      - finance_mern_mongodb_data:/data/db
+      - ./mongodb-keyfile:/tmp/mongodb-keyfile:ro
+      - keyfile_volume:/opt/keyfile
+    healthcheck:
+      test: ["CMD", "mongosh", "--host", "localhost:27017", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - finance_network
+
+  mongo-setup:
+    image: mongo:latest
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./init-replica.js:/scripts/init-replica.js:ro
+    command: >
+      bash -c "
+        sleep 15 &&
+        mongosh --host mongodb:27017 /scripts/init-replica.js
+      "
+    networks:
+      - finance_network
+
+networks:
+  finance_network:
+    driver: bridge
+
+volumes:
+  finance_mern_mongodb_data:
+  keyfile_volume:
