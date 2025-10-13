@@ -9,8 +9,11 @@ import passport from "passport"
 import connctDatabase from "./config/database.config"
 import { Env } from "./config/env.config"
 import { HTTPSTATUS } from "./config/http.config"
+import { passportAuthenticateJwt } from "./config/passport.config"
 import { asyncHandler } from "./middlewares/async-handler.middleware"
 import authRoutes from "./routes/auth.route"
+import transactionRoutes from "./routes/transaction.route"
+import userRoutes from "./routes/user.route"
 
 const app = express()
 const port = Env.PORT || 3000
@@ -40,6 +43,8 @@ app.get(
 )
 
 app.use(`${BASE_PATH}/auth`, authRoutes)
+app.use(`${BASE_PATH}/user`, passportAuthenticateJwt, userRoutes)
+app.use(`${BASE_PATH}/transaction`, passportAuthenticateJwt, transactionRoutes)
 
 app.listen(port, async () => {
   await connctDatabase()
