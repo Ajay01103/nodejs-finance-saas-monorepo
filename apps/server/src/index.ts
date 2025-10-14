@@ -12,7 +12,9 @@ import { HTTPSTATUS } from "./config/http.config"
 import { passportAuthenticateJwt } from "./config/passport.config"
 import { initializeCrons } from "./cron"
 import { asyncHandler } from "./middlewares/async-handler.middleware"
+import analyticsRoutes from "./routes/analytics.route"
 import authRoutes from "./routes/auth.route"
+import reportRoutes from "./routes/report.route"
 import transactionRoutes from "./routes/transaction.route"
 import userRoutes from "./routes/user.route"
 
@@ -46,6 +48,8 @@ app.get(
 app.use(`${BASE_PATH}/auth`, authRoutes)
 app.use(`${BASE_PATH}/user`, passportAuthenticateJwt, userRoutes)
 app.use(`${BASE_PATH}/transaction`, passportAuthenticateJwt, transactionRoutes)
+app.use(`${BASE_PATH}/report`, passportAuthenticateJwt, reportRoutes)
+app.use(`${BASE_PATH}/analytics`, passportAuthenticateJwt, analyticsRoutes)
 
 app.listen(port, async () => {
   await connctDatabase()

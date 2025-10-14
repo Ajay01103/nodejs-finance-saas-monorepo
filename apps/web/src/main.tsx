@@ -20,7 +20,6 @@ createRoot(document.getElementById("root")!).render(
         <Toaster
           position="top-center"
           expand={true}
-          duration={5000}
           richColors
           closeButton
         />

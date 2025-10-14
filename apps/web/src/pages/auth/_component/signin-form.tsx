@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { z } from "zod"
+import { useAppDispatch } from "@/app/hook"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -14,6 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useLoginMutation } from "@/features/auth/authAPI"
+import { setCredentials } from "@/features/auth/authSlice"
 import { cn } from "@/lib/utils"
 import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/routes/common/routePath"
 
@@ -28,36 +31,28 @@ const SignInForm = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) => {
-  //const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  // const [login,{isLoading}] = useLoginMutation();
-
-  const isLoading = false
+  const [login, { isLoading }] = useLoginMutation()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = (data: FormValues) => {
-    console.log(data)
-    toast.success("Login successful")
-    setTimeout(() => {
-      navigate(PROTECTED_ROUTES.OVERVIEW)
-    }, 1000)
-
-    // login(values)
-    // .unwrap()
-    // .then((data) => {
-    //   dispatch(setCredentials(data));
-    //   toast.success("Login successful");
-    //   setTimeout(() => {
-    //     navigate(PROTECTED_ROUTES.OVERVIEW);
-    //   }, 1000);
-    // })
-    // .catch((error) => {
-    //   console.log(error);
-    //   toast.error(error.data?.message || "Failed to login");
-    // });
+  const onSubmit = (values: FormValues) => {
+    login(values)
+      .unwrap()
+      .then((data) => {
+        dispatch(setCredentials(data))
+        toast.success("Login successful")
+        setTimeout(() => {
+          navigate(PROTECTED_ROUTES.OVERVIEW)
+        }, 1000)
+      })
+      .catch((error) => {
+        console.log(error)
+        toast.error(error.data?.message || "Failed to login")
+      })
   }
 
   return (
