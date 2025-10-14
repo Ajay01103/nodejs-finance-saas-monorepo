@@ -3,10 +3,23 @@ import { HTTPSTATUS } from "@/config/http.config"
 import { asyncHandler } from "@/middlewares/async-handler.middleware"
 import type { TransactionTypeEnum } from "@/models/transaction.model"
 import {
+  bulkDeleteTransactionService,
+  bulkTransactionService,
   createTransactionService,
+  deleteTransactionService,
+  duplicateTransactionService,
   getAllTransactionService,
+  getTransactionByIdService,
+  scanReceiptService,
+  updateTransactionService,
 } from "@/services/transaction.service"
-import { createTransactionSchema } from "@/validators/transaction.validator"
+import {
+  bulkDeleteTransactionSchema,
+  bulkTransactionSchema,
+  createTransactionSchema,
+  transactionIdSchema,
+  updateTransactionSchema,
+} from "@/validators/transaction.validator"
 
 export const createTransactionController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -45,6 +58,102 @@ export const getAllTransactionController = asyncHandler(
     return res.status(HTTPSTATUS.OK).json({
       message: "Transaction fetched successfully",
       ...result,
+    })
+  }
+)
+
+export const getTransactionByIdController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id
+    const transactionId = transactionIdSchema.parse(req.params.id)
+
+    const transaction = await getTransactionByIdService(userId, transactionId)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Transaction fetched successfully",
+      transaction,
+    })
+  }
+)
+
+export const duplicateTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id
+    const transactionId = transactionIdSchema.parse(req.params.id)
+
+    const transaction = await duplicateTransactionService(userId, transactionId)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Transaction duplicated successfully",
+      data: transaction,
+    })
+  }
+)
+
+export const updateTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id
+    const transactionId = transactionIdSchema.parse(req.params.id)
+    const body = updateTransactionSchema.parse(req.body)
+
+    await updateTransactionService(userId, transactionId, body)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Transaction updated successfully",
+    })
+  }
+)
+
+export const deleteTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id
+    const transactionId = transactionIdSchema.parse(req.params.id)
+
+    await deleteTransactionService(userId, transactionId)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Transaction deleted successfully",
+    })
+  }
+)
+
+export const bulkDeleteTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id
+    const { transactionIds } = bulkDeleteTransactionSchema.parse(req.body)
+
+    const result = await bulkDeleteTransactionService(userId, transactionIds)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Transaction deleted successfully",
+      ...result,
+    })
+  }
+)
+
+export const bulkTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id
+    const { transactions } = bulkTransactionSchema.parse(req.body)
+
+    const result = await bulkTransactionService(userId, transactions)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Bulk transaction inserted successfully",
+      ...result,
+    })
+  }
+)
+
+export const scanReceiptController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const file = req?.file
+
+    const result = await scanReceiptService(file)
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Reciept scanned successfully",
+      data: result,
     })
   }
 )

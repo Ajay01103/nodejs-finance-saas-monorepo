@@ -10,6 +10,7 @@ import connctDatabase from "./config/database.config"
 import { Env } from "./config/env.config"
 import { HTTPSTATUS } from "./config/http.config"
 import { passportAuthenticateJwt } from "./config/passport.config"
+import { initializeCrons } from "./cron"
 import { asyncHandler } from "./middlewares/async-handler.middleware"
 import authRoutes from "./routes/auth.route"
 import transactionRoutes from "./routes/transaction.route"
@@ -48,9 +49,9 @@ app.use(`${BASE_PATH}/transaction`, passportAuthenticateJwt, transactionRoutes)
 
 app.listen(port, async () => {
   await connctDatabase()
-  // if (Env.NODE_ENV === "development") {
-  //     await initializeCrons();
-  //   }
+  if (Env.NODE_ENV === "development") {
+    await initializeCrons()
+  }
 
   console.log(`Server is running on port ${Env.PORT} in ${Env.NODE_ENV} mode`)
 })
