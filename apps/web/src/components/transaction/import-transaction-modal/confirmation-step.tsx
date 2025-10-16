@@ -14,7 +14,7 @@ import {
   MAX_IMPORT_LIMIT,
   PAYMENT_METHODS_ENUM,
 } from "@/constant"
-import type { BulkTransactionType } from "@/features/transaction/transationType"
+import type { BulkTransactionType } from "@/features/transaction/transactionType"
 import { useProgressLoader } from "@/hooks/use-progress-loader"
 
 type ConfirmationStepProps = {

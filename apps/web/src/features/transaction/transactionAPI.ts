@@ -7,7 +7,7 @@ import type {
   GetAllTransactionResponse,
   GetSingleTransactionResponse,
   UpdateTransactionPayload,
-} from "./transationType"
+} from "./transactionType"
 
 export const transactionApi = apiClient.injectEndpoints({
   endpoints: (builder) => ({
