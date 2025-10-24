@@ -14,6 +14,7 @@ import {
   MAX_IMPORT_LIMIT,
   PAYMENT_METHODS_ENUM,
 } from "@/constant"
+import { useBulkImportTransactionMutation } from "@/features/transaction/transactionAPI"
 import type { BulkTransactionType } from "@/features/transaction/transactionType"
 import { useProgressLoader } from "@/hooks/use-progress-loader"
 
@@ -95,7 +96,7 @@ const ConfirmationStep = ({
     resetProgress,
   } = useProgressLoader({ initialProgress: 10, completionDelay: 500 })
 
-  // const [bulkImportTransaction] = useBulkImportTransactionMutation();
+  const [bulkImportTransaction] = useBulkImportTransactionMutation()
 
   const handleImport = () => {
     const { transactions, hasValidationErrors } =
@@ -122,30 +123,24 @@ const ConfirmationStep = ({
 
     console.log(payload, "payload")
 
-    setTimeout(() => {
-      clearInterval(interval)
-      doneProgress() // Sets progress to 100%
-      resetProgress() // Optional reset for reuse
-      onComplete()
-    }, 2000)
-
-    // bulkImportTransaction(payload)
-    //   .unwrap()
-    //   .then(() => {
-    //     updateProgress(100);
-    //     toast.success("Imported transactions successfully");
-    //   })
-    //   .catch((error) => {
-    //     resetProgress();
-    //     toast.error(error.data?.message || "Failed to import transactions");
-    //   })
-    //   .finally(() => {
-    //     clearInterval(interval);
-    //     setTimeout(() => {
-    //       resetProgress();
-    //       onComplete();
-    //     }, 500);
-    //   });
+    bulkImportTransaction(payload)
+      .unwrap()
+      .then(() => {
+        updateProgress(100)
+        toast.success("Imported transactions successfully")
+      })
+      .catch((error) => {
+        resetProgress()
+        toast.error(error.data?.message || "Failed to import transactions")
+      })
+      .finally(() => {
+        clearInterval(interval)
+        setTimeout(() => {
+          doneProgress()
+          resetProgress()
+          onComplete()
+        }, 500)
+      })
   }
 
   const getAssignFieldToMappedTransactions = () => {

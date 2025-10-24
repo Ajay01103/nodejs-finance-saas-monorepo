@@ -82,7 +82,7 @@ const TransactionForm = (props: {
   transactionId?: string
   onCloseDrawer?: () => void
 }) => {
-  const { onCloseDrawer, isEdit = false, transactionId } = props
+  const { onCloseDrawer, isEdit, transactionId } = props
 
   const [isScanning, setIsScanning] = useState(false)
 
@@ -90,7 +90,7 @@ const TransactionForm = (props: {
     transactionId || "",
     { skip: !transactionId }
   )
-  const editData = data?.data
+  const editData = data?.transaction
 
   const [createTransaction, { isLoading: isCreating }] =
     useCreateTransactionMutation()
@@ -117,18 +117,18 @@ const TransactionForm = (props: {
   useEffect(() => {
     if (isEdit && transactionId && editData) {
       form.reset({
-        title: "",
-        amount: "",
-        type: _TRANSACTION_TYPE.INCOME,
-        category: "",
-        date: new Date(),
-        paymentMethod: "",
-        isRecurring: false,
-        frequency: null,
-        description: "",
+        title: editData?.title,
+        amount: editData.amount.toString(),
+        type: editData.type,
+        category: editData.category?.toLowerCase(),
+        date: new Date(editData.date),
+        paymentMethod: editData.paymentMethod,
+        isRecurring: editData.isRecurring,
+        frequency: editData.recurringInterval,
+        description: editData.description,
       })
     }
-  }, [form, isEdit, transactionId, editData])
+  }, [editData, form, isEdit, transactionId])
 
   const frequencyOptions = Object.entries(_TRANSACTION_FREQUENCY).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
